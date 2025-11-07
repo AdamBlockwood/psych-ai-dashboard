@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psychology & AI Survey Dashboard</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <!-- Load Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for Chart.js tooltips and a cleaner font */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+        /* Active tab styling */
+        .tab-btn.active {
+            border-bottom-color: #3B82F6; /* blue-500 */
+            color: #3B82F6;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Psychology & AI Survey Dashboard</h1>
+            <p class="text-lg text-gray-600">Interactive analysis of survey data (N=528)</p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="flex border-b border-gray-300 mb-6" aria-label="Tabs">
+            <button class="tab-btn active text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm md:text-base mr-4" data-tab="demographics">
+                Demographics
+            </button>
+            <button class="tab-btn text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm md:text-base mr-4" data-tab="perceptions">
+                AI Perceptions (All)
+            </button>
+            <button class="tab-btn text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm md:text-base mr-4" data-tab="users">
+                AI User Analysis
+            </button>
+            <button class="tab-btn text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm md:text-base" data-tab="non-users">
+                AI Non-User Analysis
+            </button>
+        </nav>
+
+        <!-- Tab Content Panes -->
+        <div>
+            <!-- Demographics Tab -->
+            <div id="tab-demographics" class="tab-pane space-y-6">
+                <!-- Key Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase">Mean Age</h3>
+                        <p class="text-3xl font-semibold text-gray-800">55.26 <span class="text-lg font-normal">years</span></p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase">Median Age</h3>
+                        <p class="text-3xl font-semibold text-gray-800">55.00 <span class="text-lg font-normal">years</span></p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase">Mean Years Practicing</h3>
+                        <p class="text-3xl font-semibold text-gray-800">25.28 <span class="text-lg font-normal">years</span></p>
+                    </div>
+                </div>
+
+                <!-- Chart Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Gender (N=509)</h3>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="genderChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey question: "Which most closely describes your gender?"</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Psychology Subfield (N=510)</h3>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="subfieldChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey question: "What subfield of psychology do you... have your highest terminal degree in?"</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Race (N=505)</h3>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="raceChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey question: "What is your race?"</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Highest Degree (N=512)</h3>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="degreeChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey question: "What is the highest degree you have earned?"</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6 lg:col-span-2">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Work Settings (N=528)</h3>
+                        <div class="chart-container" style="height: 400px;">
+                            <canvas id="workSettingsChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey question: "In what setting(s) do you currently work? Please mark all that apply."</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6 lg:col-span-2">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Top 10 Home States (N=460)</h3>
+                        <div class="chart-container" style="height: 400px;">
+                            <canvas id="stateChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey question: "What is your Home State (primary state of licensure, as used in PsyPact)?"</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Perceptions Tab -->
+            <div id="tab-perceptions" class="tab-pane hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">AI Use Frequency (Personal vs. Work)</h3>
+                        <div class="chart-container">
+                            <canvas id="aiUseFrequencyChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey question: "During the past 6 months, how often have you used AI..."</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Want Training on AI Use? (N=517)</h3>
+                        <div class="chart-container" style="height: 300px; max-height: 400px;">
+                            <canvas id="requestForTrainingChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey question: "Would you like the National Register to provide training or resources to help you learn to better use AI in your work?"</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6 lg:col-span-2">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Training Resources: Received vs. Wanted</h3>
+                        <div class="chart-container">
+                            <canvas id="trainingResourcesChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Based on questions: "Which of the following sources have you used to educate yourself about the practical use of Al in practice?" (Received) and "What types of training or resources would you like to have provided to you...?" (Wanted)</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6 lg:col-span-2">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Ethical Perceptions of AI Tasks</h3>
+                        <p class="text-sm text-gray-600 mb-4">"Is it 'ethical' (consistent with your professional code) for AI to..."</p>
+                        <div class="chart-container" style="height: 500px;">
+                            <canvas id="ethicalPerceptionsChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey prompt: "Please respond... For these questions, ‘ethical’ means consistent with your professional organization's (e.g., APA) ethical code."</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6 lg:col-span-2">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">General Perceptions of AI</h3>
+                        <div class="chart-container" style="height: 500px;">
+                            <canvas id="generalPerceptionsChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey prompt: "Please respond to the following items:"</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Users Tab -->
+            <div id="tab-users" class="tab-pane hidden space-y-6">
+                <!-- Key Stats Cards for AI Users -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase">Mean Hours Saved per Week</h3>
+                        <p class="text-3xl font-semibold text-gray-800">3.89</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase">Review/Edit AI Content?</h3>
+                        <p class="text-3xl font-semibold text-gray-800">96.6% <span class="text-lg font-normal">Say Yes</span></p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase">Employer Awareness (of those not self-employed)</h3>
+                        <p class="text-3xl font-semibold text-gray-800">77.2% <span class="text-lg font-normal">Say Yes</span></p>
+                        <p class="text-xs text-gray-500">Calculated from (112 Yes / (112 Yes + 11 No + 23 Unsure))</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-4 mt-6">
+                    <p class="text-sm text-gray-500 italic">Notes for cards above: "Hours Saved" is from: "During the past 6 months, estimate how many hours of work Al saves you in a week." "Review/Edit" is from: "When you have used AI-generated content, do you edit and/or review it before including it in your official use?". "Employer Awareness" is from: "Is your employer aware that you use AI in your practice?".</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg shadow-md p-6 lg:col-span-2">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">What have you used AI for? (N=294)</h3>
+                        <div class="chart-container" style="height: 800px;">
+                            <canvas id="aiUseCasesChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey question: "During the past 6 months, what have you used AI for to facilitate your practice? Select all that apply."</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Ever Entered PHI into an AI? (N=294)</h3>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="phiEnteredChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey question: "Have you ever entered Protected Health Information (PHI; e.g., client names, diagnoses, treatment notes, test results) into an AI tool?"</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">For PHI Users: Is the AI HIPAA Compliant / BAA? (N=39)</h3>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="phiComplianceChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey question: "Which of the following is true regarding the AI system you use to enter Protected Health Information (PHI)?"</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Obtain Informed Consent for AI Use? (N=220)</h3>
+                        <p class="text-sm text-gray-600 mb-4">(Excludes those who don't use AI for work)</p>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="informedConsentChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey question: "When using AI in your work with patient or client information (e.g., to assist with documentation, treatment planning, or report writing), do you obtain informed consent before doing so?"</p>
+                    </div>
+                     <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Is Employer Aware of AI Use? (N=294)</h3>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="employerAwarenessChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey question: "Is your employer aware that you use AI in your practice?"</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Non-Users Tab -->
+            <div id="tab-non-users" class="tab-pane hidden">
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Reasons for Not Using AI in Last 6 Months (N=223)</h3>
+                        <div class="chart-container" style="height: 800px;">
+                            <canvas id="reasonsNotUsingChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-500 italic mt-2">Survey question: "Why haven't you used generative Al tools related to your work in the last six months? [select all that apply]?"</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Tab Swithing Logic ---
+            const tabs = document.querySelectorAll('.tab-btn');
+            const panes = document.querySelectorAll('.tab-pane');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Deactivate all tabs
+                    tabs.forEach(t => t.classList.remove('active', 'border-blue-500', 'text-blue-500', 'font-semibold'));
+                    
+                    // Activate clicked tab
+                    tab.classList.add('active', 'border-blue-500', 'text-blue-500', 'font-semibold');
+
+                    // Hide all panes
+                    panes.forEach(pane => pane.classList.add('hidden'));
+
+                    // Show corresponding pane
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+                });
+            });
+
+            // --- Chart.js Data ---
+
+            // --- Tab 1: Demographics ---
+            const genderData = {
+                labels: ['Woman (71.1%)', 'Man (25.5%)', 'Prefer not to answer (1.8%)', 'Prefer to self-describe (0.8%)', 'Non-Binary (0.6%)', 'Agender (0.2%)'],
+                percents: [71.1, 25.5, 1.8, 0.8, 0.6, 0.2]
+            };
+            const subfieldData = {
+                labels: ['Clinical (76.7%)', 'Counseling (14.9%)', 'School (4.7%)', 'Other (3.7%)'],
+                percents: [76.7, 14.9, 4.7, 3.7]
+            };
+            const raceData = {
+                labels: ['White or Caucasian', 'Prefer not to answer', 'More than one race', 'Black or African American', 'Asian', 'Prefer to self-describe', 'American Indian or Alaskan Native'],
+                percents: [80.2, 5.7, 4.6, 4.6, 3.0, 1.8, 0.2]
+            };
+            const degreeData = {
+                labels: ['Doctorate (98.4%)', 'Other (1.4%)', 'Masters (0.2%)'],
+                percents: [98.4, 1.4, 0.2]
+            };
+            const workSettingsData = {
+                labels: ['Private practice', 'Outpatient clinic', 'Hospital', 'College/university', 'Group practice', 'Other', 'Research', 'Correctional or forensic setting', 'Community mental health center', 'K-12 School'],
+                percents: [67.8, 18.4, 13.8, 11.4, 8.1, 7.4, 4.5, 2.8, 1.9, 0.9]
+            };
+            const stateData = { // Top 10
+                labels: ['California', 'Texas', 'Illinois', 'Virginia', 'New York', 'Maryland', 'Florida', 'Pennsylvania', 'Wisconsin', 'Arizona', 'Tennessee'],
+                frequencies: [40, 33, 30, 30, 29, 28, 25, 22, 21, 14, 14]
+            };
+            
+            // --- Tab 2: AI Perceptions (All) ---
+            const aiUseFrequencyData = {
+                labels: ["I haven't used it", 'Less than once a month', 'About once a month', 'About twice a month', 'About three times a month', 'Weekly', 'Daily'],
+                personal: [28.8, 14.1, 8.1, 7.4, 6.4, 24.2, 11.0],
+                work: [43.1, 10.8, 5.6, 5.0, 6.2, 18.8, 10.4]
+            };
+            const requestForTrainingData = {
+                labels: ['Yes (81.6%)', 'No (18.4%)'],
+                percents: [81.6, 18.4]
+            };
+            const trainingResourcesData = {
+                labels: ['Webinar/Online training', 'Colleagues/Co-workers', 'Journal articles', 'Websites', 'In person training', 'Social media', 'Podcast', 'Videos', 'Newsletter', 'Other'],
+                received: [49.1, 46.0, 36.7, 34.1, 14.0, 14.4, 10.8, 10.2, 9.8, 7.0],
+                wanted: [73.1, null, 34.3, 26.5, 16.5, 3.6, 15.9, 33.3, 18.9, 1.9] // N/A handled by filtering
+            };
+            const ethicalPerceptionsData = {
+                labels: ['Write Goals', 'Plan Treatment', 'Write Session Notes', 'Write Reports', 'Interpret Data'],
+                responses: {
+                    'Strongly Disagree': [9.3, 9.1, 17.1, 18.7, 21.6],
+                    'Disagree': [13.0, 12.3, 15.0, 16.3, 16.7],
+                    'Somewhat Disagree': [11.5, 11.3, 12.1, 17.3, 15.0],
+                    'Neither Agree nor Disagree': [20.6, 18.3, 17.7, 17.5, 17.5],
+                    'Somewhat Agree': [21.9, 26.5, 17.7, 16.0, 17.7],
+                    'Agree': [17.9, 17.1, 13.6, 10.3, 7.6],
+                    'Strongly Agree': [5.8, 5.4, 6.8, 3.9, 3.9]
+                }
+            };
+            const generalPerceptionsData = {
+                labels: ['I trust AI', 'Helpful in practice', 'Better at clinical tasks', 'Better at writing reports', 'Better at integrating data', 'Better at recs'],
+                responses: {
+                    'Strongly Disagree': [22.2, 5.9, 17.8, 13.3, 12.5, 14.1],
+                    'Disagree': [20.0, 10.6, 20.2, 16.0, 17.1, 18.8],
+                    'Somewhat Disagree': [20.6, 6.5, 11.2, 13.9, 8.4, 14.1],
+                    'Neither Agree nor Disagree': [17.1, 22.3, 24.7, 27.0, 34.3, 28.2],
+                    'Somewhat Agree': [15.5, 28.0, 16.5, 19.4, 17.3, 17.5],
+                    'Agree': [3.5, 17.6, 6.9, 6.8, 8.0, 5.5],
+                    'Strongly Agree': [1.0, 9.2, 2.7, 3.5, 2.4, 1.8]
+                }
+            };
+
+            // --- Tab 3: AI User Analysis ---
+            const employerAwarenessData = {
+                labels: ['I work for myself (50.3%)', 'Yes (38.1%)', 'Unsure (7.8%)', 'No (3.7%)'],
+                percents: [50.3, 38.1, 7.8, 3.7]
+            };
+            const aiUseCasesData = {
+                labels: [
+                    'To answer work-related questions', 'To generate easy-to-understand explanations', 'To generate content for presentations', 'To write a session or progress note', 
+                    'To generate psychoeducational materials', 'To generate emails', 'To generate recommendations', 'To generate a list of empirically supported treatments', 
+                    'To generate summaries', 'To generate treatment plans', 'To generate treatment goals', 'To write reports', 'Other', 'To transcribe sessions', 
+                    'To generate images', 'To interpret test results', 'To translate materials', 'To assist with billing/Coding', 'To generate supervision summaries', 'To generate videos'
+                ],
+                percents: [
+                    39.5, 35.0, 33.3, 31.6, 25.2, 24.5, 21.1, 19.4, 18.7, 16.7, 14.6, 14.6, 14.3, 13.9, 13.3, 7.5, 6.8, 4.4, 1.7, 1.4
+                ]
+            };
+            const phiEnteredData = {
+                labels: ['No (84.4%)', 'Yes (13.3%)', 'Unsure (2.4%)'],
+                percents: [84.4, 13.3, 2.4]
+            };
+            const phiComplianceData = {
+                labels: ['The AI vendor/company I use is HIPAA compliant', 'I (or my organization) have a BAA', 'Unsure', 'Neither are true'],
+                percents: [69.2, 53.8, 12.8, 10.3]
+            };
+            const informedConsentData = {
+                labels: ['Yes (40.9%)', 'Conditional upon certain factors (32.3%)', 'No (26.8%)'],
+                percents: [40.9, 32.3, 26.8]
+            };
+            
+            // --- Tab 4: AI Non-User Analysis ---
+            const reasonsNotUsingData = {
+                labels: [
+                    'Ethical concerns regarding AI use in practice', 'Concerns about client/patient data privacy', 'Concerns about the accuracy or reliability of AI', 
+                    'Uncertainty about legal implications', 'Concerns about AI replacing human judgment', 'Concerns about potential bias in AI systems', 
+                    'I am unfamiliar with AI tools', 'Lack of evidence-based research', 'Lack of training or professional development', 
+                    'I am unsure how to integrate AI tools', 'Worries about the impact on the client/patient relationship', 'Lack of specific AI tools', 
+                    'Resistance to changing established practice methods', 'Uncertainty about how to explain AI use', 'Other', 'Cost or budget constraints', 'Uncertainty about what is or isn’t allowed'
+                ],
+                percents: [
+                    71.3, 70.0, 69.1, 53.4, 50.2, 47.1, 40.4, 39.0, 36.3, 32.7, 29.1, 23.3, 22.9, 13.9, 11.2, 7.6, 6.3
+                ]
+            };
+            
+            // --- Chart.js Rendering ---
+
+            // Helper function for tooltip on HORIZONTAL bars
+            const tooltipPercentHorizontal = {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || context.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.x !== null) {
+                            label += context.parsed.x + '%';
+                        }
+                        return label;
+                    }
+                }
+            };
+
+            // Helper function for tooltip on VERTICAL bars
+            const tooltipPercentVertical = {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                            label += context.parsed.y + '%';
+                        }
+                        return label;
+                    }
+                }
+            };
+
+            const tooltipCount = {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || context.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                            label += context.parsed.y;
+                        }
+                        return label;
+                    }
+                }
+            };
+            
+            // Likert Scale Colors
+            const likertColors = {
+                'Strongly Disagree': '#d7191c',
+                'Disagree': '#f08080',
+                'Somewhat Disagree': '#fddbc7',
+                'Neither Agree nor Disagree': '#e0e0e0',
+                'Somewhat Agree': '#d1e5f0',
+                'Agree': '#67a9cf',
+                'Strongly Agree': '#2166ac'
+            };
+
+            // --- Tab 1 Charts ---
+            new Chart(document.getElementById('genderChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: genderData.labels,
+                    datasets: [{
+                        data: genderData.percents,
+                        backgroundColor: ['#3B82F6', '#93C5FD', '#BFDBFE', '#DBEAFE', '#EFF6FF', '#F9FAFB']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            new Chart(document.getElementById('subfieldChart'), {
+                type: 'pie',
+                data: {
+                    labels: subfieldData.labels,
+                    datasets: [{
+                        data: subfieldData.percents,
+                        backgroundColor: ['#10B981', '#6EE7B7', '#A7F3D0', '#D1FAE5']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            new Chart(document.getElementById('raceChart'), {
+                type: 'bar',
+                data: {
+                    labels: raceData.labels,
+                    datasets: [{
+                        label: 'Percent',
+                        data: raceData.percents,
+                        backgroundColor: '#F59E0B'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: tooltipPercentVertical } }
+            });
+
+            new Chart(document.getElementById('degreeChart'), {
+                type: 'pie',
+                data: {
+                    labels: degreeData.labels,
+                    datasets: [{
+                        data: degreeData.percents,
+                        backgroundColor: ['#6366F1', '#A5B4FC', '#C7D2FE']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            new Chart(document.getElementById('workSettingsChart'), {
+                type: 'bar',
+                data: {
+                    labels: workSettingsData.labels,
+                    datasets: [{
+                        label: '% of Cases',
+                        data: workSettingsData.percents,
+                        backgroundColor: '#8B5CF6'
+                    }]
+                },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: tooltipPercentHorizontal } }
+            });
+
+            new Chart(document.getElementById('stateChart'), {
+                type: 'bar',
+                data: {
+                    labels: stateData.labels,
+                    datasets: [{
+                        label: 'Frequency',
+                        data: stateData.frequencies,
+                        backgroundColor: '#EC4899'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: tooltipCount } }
+            });
+
+            // --- Tab 2 Charts ---
+            new Chart(document.getElementById('aiUseFrequencyChart'), {
+                type: 'bar',
+                data: {
+                    labels: aiUseFrequencyData.labels,
+                    datasets: [
+                        { label: 'For Personal Reasons', data: aiUseFrequencyData.personal, backgroundColor: '#3B82F6' },
+                        { label: 'Related to Your Work', data: aiUseFrequencyData.work, backgroundColor: '#10B981' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: tooltipPercentVertical } }
+            });
+
+            new Chart(document.getElementById('requestForTrainingChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: requestForTrainingData.labels,
+                    datasets: [{
+                        data: requestForTrainingData.percents,
+                        backgroundColor: ['#10B981', '#F87171']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            new Chart(document.getElementById('trainingResourcesChart'), {
+                type: 'bar',
+                data: {
+                    labels: trainingResourcesData.labels,
+                    datasets: [
+                        { label: 'Percent Received', data: trainingResourcesData.received, backgroundColor: '#A5B4FC' },
+                        { label: 'Percent Wanted', data: trainingResourcesData.wanted, backgroundColor: '#6366F1' }
+                    ]
+                },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { tooltip: tooltipPercentHorizontal } }
+            });
+
+            // Helper to build stacked bar charts
+            const buildStackedBar = (canvasId, chartData) => {
+                const datasets = Object.keys(chartData.responses).map(key => ({
+                    label: key,
+                    data: chartData.responses[key],
+                    backgroundColor: likertColors[key]
+                }));
+
+                new Chart(document.getElementById(canvasId), {
+                    type: 'bar',
+                    data: {
+                        labels: chartData.labels,
+                        datasets: datasets
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { stacked: true, max: 100, ticks: { callback: (value) => value + '%' } },
+                            y: { stacked: true }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.raw}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            buildStackedBar('ethicalPerceptionsChart', ethicalPerceptionsData);
+            buildStackedBar('generalPerceptionsChart', generalPerceptionsData);
+
+            // --- Tab 3 Charts ---
+            new Chart(document.getElementById('employerAwarenessChart'), {
+                type: 'pie',
+                data: {
+                    labels: employerAwarenessData.labels,
+                    datasets: [{
+                        data: employerAwarenessData.percents,
+                        backgroundColor: ['#3B82F6', '#93C5FD', '#DBEAFE', '#F87171']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+            
+            new Chart(document.getElementById('aiUseCasesChart'), {
+                type: 'bar',
+                data: {
+                    labels: aiUseCasesData.labels,
+                    datasets: [{
+                        label: 'Percent of Users',
+                        data: aiUseCasesData.percents,
+                        backgroundColor: '#10B981'
+                    }]
+                },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: tooltipPercentHorizontal } }
+            });
+
+            new Chart(document.getElementById('phiEnteredChart'), {
+                type: 'pie',
+                data: {
+                    labels: phiEnteredData.labels,
+                    datasets: [{
+                        data: phiEnteredData.percents,
+                        backgroundColor: ['#10B981', '#F87171', '#FCD34D']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            new Chart(document.getElementById('phiComplianceChart'), {
+                type: 'bar',
+                data: {
+                    labels: phiComplianceData.labels,
+                    datasets: [{
+                        label: '% of PHI Users (N=39)',
+                        data: phiComplianceData.percents,
+                        backgroundColor: '#6366F1'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: tooltipPercentVertical } }
+            });
+
+            new Chart(document.getElementById('informedConsentChart'), {
+                type: 'pie',
+                data: {
+                    labels: informedConsentData.labels,
+                    datasets: [{
+                        data: informedConsentData.percents,
+                        backgroundColor: ['#3B82F6', '#F59E0B', '#F87171']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            // --- Tab 4 Charts ---
+            new Chart(document.getElementById('reasonsNotUsingChart'), {
+                type: 'bar',
+                data: {
+                    labels: reasonsNotUsingData.labels,
+                    datasets: [{
+                        label: 'Percent of Non-Users',
+                        data: reasonsNotUsingData.percents,
+                        backgroundColor: '#F87171'
+                    }]
+                },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: tooltipPercentHorizontal } }
+            });
+        });
+    </script>
+</body>
+</html>
